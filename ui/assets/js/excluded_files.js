@@ -19,6 +19,10 @@ var ExcludedTable = React.createClass({
       return (<div id="no-result"><img src="images/busy.gif" /><div>Searching...</div></div>);
     }
 
+    if (!this.props.repo) {
+      return null;
+    }
+
     var rows = [];
     this.props.files.forEach(function(file) {
       rows.push(<ExcludedRow key={file.Filename} file={file} repo={_this.props.repo} />);
@@ -59,9 +63,10 @@ var RepoButton = React.createClass({
 var RepoList = React.createClass({
   render: function() {
     var repos = [],
-        _this = this;
+        _this = this,
+        currentRepo = this.props.currentRepo;
     this.props.repos.forEach(function(repo){
-      repos.push(<RepoButton key={repo} repo={repo} onRepoClick={_this.props.onRepoClick} currentRepo={_this.props.repo} />);
+      repos.push(<RepoButton key={repo} repo={repo} onRepoClick={_this.props.onRepoClick} currentRepo={currentRepo} />);
     });
 
     return (
@@ -90,7 +95,7 @@ var FilterableExcludedFiles = React.createClass({
     return {
       files: [],
       repos: [],
-      repo: null,
+      currentRepo: null,
     };
   },
 
@@ -98,7 +103,7 @@ var FilterableExcludedFiles = React.createClass({
     var _this = this;
     _this.setState({
       searching: true,
-      repo: this.state.repos[repo],
+      currentRepo: repo,
     });
     $.ajax({
       url: '/api/v1/excludes',
@@ -122,8 +127,8 @@ var FilterableExcludedFiles = React.createClass({
         <h1>Excluded Files</h1>
 
         <div id="excluded_files" className="table-container">
-          <RepoList repos={Object.keys(this.state.repos)} onRepoClick={this.onRepoClick} repo={this.state.repo} />
-          <ExcludedTable files={this.state.files} searching={this.state.searching} repo={this.state.repo} />
+          <RepoList repos={Object.keys(this.state.repos)} onRepoClick={this.onRepoClick} currentRepo={this.state.currentRepo} />
+          <ExcludedTable files={this.state.files} searching={this.state.searching} repo={this.state.repos[this.state.currentRepo]} currentRepo={this.state.currentRepo} />
         </div>
       </div>
     );
